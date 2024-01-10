@@ -154,21 +154,33 @@ namespace librealsense
             {
                 if(_running)
                     return;
-
-                _context.messenger->reset_endpoint(_read_endpoint, RS2_USB_ENDPOINT_DIRECTION_READ);
-
+                
+                bool __reset_request = true;
+                while(__reset_request)
                 {
-                    std::lock_guard<std::mutex> lock(_running_mutex);
-                    _running = true;
-                }
+		        __reset_request = false;
+		        
+		        _context.messenger->reset_endpoint(_read_endpoint, RS2_USB_ENDPOINT_DIRECTION_READ);
+		        
+		        {
+		            std::lock_guard<std::mutex> lock(_running_mutex);
+		            _running = true;
+		        }
 
-                for(auto&& r : _requests)
-                {
-                    auto sts = _context.messenger->submit_request(r);
-                    if(sts != platform::RS2_USB_STATUS_SUCCESS)
-                        throw std::runtime_error("failed to submit UVC request while start streaming");
+		        for(auto&& r : _requests)
+		        {
+		            auto sts = _context.messenger->submit_request(r);
+		            if(sts != platform::RS2_USB_STATUS_SUCCESS)
+		                __reset_request = true;
+		                // throw std::runtime_error("failed to submit UVC request while start streaming");
+		                
+		        }
+		        
+		        if(__reset_request)
+		            for(auto&& r : _requests)
+		                _context.messenger->cancel_request(r); 
                 }
-
+                
                 _publish_frame_thread->start();
 
             }, [this](){ return _running; });

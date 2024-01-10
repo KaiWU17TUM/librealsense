@@ -214,15 +214,15 @@ target_include_directories(pybackend2 PRIVATE ../../src)
 target_include_directories(pyrealsense2 PRIVATE ../../src)
 
 if(BUILD_NETWORK_DEVICE)
-    pybind11_add_module(pyrealsense2-net SHARED pyrs_net.cpp)
-    target_link_libraries(pyrealsense2-net PRIVATE realsense2-net)
-    set_target_properties(pyrealsense2-net PROPERTIES FOLDER Wrappers/python)
-    set_target_properties(pyrealsense2-net PROPERTIES
+    pybind11_add_module(pyrealsense2_net SHARED pyrs_net.cpp)
+    target_link_libraries(pyrealsense2_net PRIVATE realsense2-net)
+    set_target_properties(pyrealsense2_net PROPERTIES FOLDER Wrappers/python)
+    set_target_properties(pyrealsense2_net PROPERTIES
         VERSION     ${REALSENSE_VERSION_STRING}
         SOVERSION   "${REALSENSE_VERSION_MAJOR}.${REALSENSE_VERSION_MINOR}"
     )
     include_directories(../../include)
-    install(TARGETS pyrealsense2-net
+    install(TARGETS pyrealsense2_net
         EXPORT pyrealsense2-netTargets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         LIBRARY DESTINATION ${PYTHON_INSTALL_DIR}
